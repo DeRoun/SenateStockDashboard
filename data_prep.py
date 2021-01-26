@@ -29,22 +29,17 @@ s_trans['period_end'] = np.where(s_trans['transaction_date'] + three_month >= da
 
 s_trans['period_start'] = s_trans['transaction_date'] - three_month
 
-######################################################################################################################
+########################################################################################################################
 
 # create df for stock information
 stock_data = pd.DataFrame()
 
-# track % points off of sale peek and purchase low (TAKE OUT HEAD WHEN ITS FIXED)
+# make a lilst of all tickers from s_trans df
 tick = s_trans['ticker'].head(10).tolist()
-count = 0
-#start = pd.to_datetime('1-1-2021')
-#end = datetime.date.today()
-
-####### dataframe creation broken, save is fine
 
 # loop each stock ticker into new dataframe gathering info on 3 month before and after purchase
+count = 0
 for i in tick:
-    try:
         # download stock data
         stock = []
         start = pd.to_datetime(s_trans.loc[s_trans['ticker'] == tick[count], 'period_start'].iloc[0]).date()
@@ -52,14 +47,12 @@ for i in tick:
         stock = yf.download(i, start = start, end = end, progress=False)
         count += 1
 
-        # add each stock to dataframe
+        # add each stock and data to the new dataframe
         if len(stock) == 0:
             None
         else:
             stock['Name'] = i
             stock_data = stock_data.append(stock, sort=False)
-    except Exception:
-        None
 
 # set row names to first column
 stock_data.index.name = 'Date'
