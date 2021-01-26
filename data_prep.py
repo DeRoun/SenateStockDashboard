@@ -36,8 +36,9 @@ stock_data = pd.DataFrame()
 
 # track % points off of sale peek and purchase low (TAKE OUT HEAD WHEN ITS FIXED)
 tick = s_trans['ticker'].head(10).tolist()
-start = pd.to_datetime('1-1-2021')
-end = datetime.date.today()
+count = 0
+#start = pd.to_datetime('1-1-2021')
+#end = datetime.date.today()
 
 ####### dataframe creation broken, save is fine
 
@@ -46,9 +47,10 @@ for i in tick:
     try:
         # download stock data
         stock = []
-        # start = pd.to_datetime(s_trans.loc[s_trans['ticker'] == tick.index(i), 'period_start'].iloc[0]).dt.date
-        # end = pd.to_datetime(s_trans.loc[s_trans['ticker'] == tick.index(i), 'period_end'].iloc[0]).dt.date
+        start = pd.to_datetime(s_trans.loc[s_trans['ticker'] == tick[count], 'period_start'].iloc[0]).date()
+        end = pd.to_datetime(s_trans.loc[s_trans['ticker'] == tick[count], 'period_end'].iloc[0]).date()
         stock = yf.download(i, start = start, end = end, progress=False)
+        count += 1
 
         # add each stock to dataframe
         if len(stock) == 0:
