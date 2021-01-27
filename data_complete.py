@@ -17,25 +17,23 @@ final = s_trans.merge(stock_data, on=['date', 'ticker'], how = 'left').drop_dupl
 # create new max/min column
 final['max/min'] = np.nan
 
-# create list of trade_ids
-trade = final['trade_id'].tolist()
-print(trade[0])
-
 # create for loop that writes to the max/min column
-count = 0
-for i in trade:
+count = 1
+trades = final['trade_id'].tolist()
+for i in trades:
         #make temp dataframe
+        print(count)
         temp = []
 
         # gets the start and end date form s_trans table for the current index of the trade list
-        start = pd.to_datetime(final.loc[final['trade_id'] == trade[count], 'period_start'].iloc[0]).date()
-        end = pd.to_datetime(final.loc[final['trade_id'] == trade[count], 'period_end'].iloc[0]).date()
+        start = pd.to_datetime(final.loc[final['trade_id'] == count, 'period_start'].iloc[0]).date()
+        end = pd.to_datetime(final.loc[final['trade_id'] == count, 'period_end'].iloc[0]).date()
 
         # gets the name of the ticker for the current index of the trade list
-        tick_id = final.loc[final['trade_id'] == trade[count], 'ticker'].iloc[0]
+        tick_id = final.loc[final['trade_id'] == count, 'ticker'].iloc[0]
 
         # gets the type (Sale or Purchase) of the current index of the trade list
-        type = final.loc[final['trade_id'] == trade[count], 'type']
+        type = final.loc[final['trade_id'] == count, 'type'].iloc[0]
 
         # make subset dataframe of ticker within date range
         temp = stock_data[(stock_data.ticker == tick_id) & (stock_data["date"].isin(pd.date_range(start, end)))]
@@ -43,12 +41,15 @@ for i in trade:
         # will write either the min or max of the current index of the trade list to the max/min column
         # of the s_trans data frame
         if 'Sale' in type:
-            final.loc[final['trade_id'] == trade[count], 'max/min'] = temp['close'].argmax()
+            final.loc[final['trade_id'] == count, 'max/min'] = temp['close'].max()
+            count += 1
+        elif 'Purchase' in type:
+            final.loc[final['trade_id'] == count, 'max/min'] = temp['close'].min()
             count += 1
         else:
-            final.loc[final['trade_id'] == trade[count], 'max/min'] = temp['close'].argmin()
+            final.loc[final['trade_id'] == count, 'max/min'] = 'Error'
             count += 1
 
 # create a new column called accuracy, calculates the percent difference between max/min and price
 
-final['accuracy'] = (final['max/min'] / final['price']) * 100
+# final['accuracy'] = (final['max/min'] / final['price']) * 100
